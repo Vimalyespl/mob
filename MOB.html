@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense Form</title>
+</head>
+<body>
+    <h1>Expense Form</h1>
+    <form id="expenseForm">
+        <label>Employee Name:</label>
+        <select name="employeeName" id="employeeName" required></select><br>
+
+        <label>Employee Code:</label>
+        <select name="empCode" id="empCode" required></select><br>
+
+        <label>State:</label>
+        <select name="state" id="state" required></select><br>
+
+        <label>Month:</label>
+        <select name="month" id="month" required></select><br>
+
+        <label>Expense Type:</label>
+        <select name="expenseType" id="expenseType" required></select><br>
+
+        <label>Period From:</label>
+        <input type="date" name="periodFrom" required><br>
+
+        <label>Period To:</label>
+        <input type="date" name="periodTo" required><br>
+
+        <label>Mobile Expenses:</label>
+        <input type="number" name="mobileExpenses" required><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        // Prepopulate dropdowns using Apps Script
+        async function fetchDropdownData() {
+            const response = await fetch("https://script.google.com/macros/s/AKfycbyPdEiCSP8uv_lREbXelIhbKBJeJmY2vSptwa-Zq7T6NjtxPyP2NqyA1aNyX1v3hpBCjQ/exec?dropdownData=true");
+            const data = await response.json();
+
+            const employeeNameSelect = document.getElementById("employeeName");
+            const empCodeSelect = document.getElementById("empCode");
+            const stateSelect = document.getElementById("state");
+            const monthSelect = document.getElementById("month");
+            const expenseTypeSelect = document.getElementById("expenseType");
+
+            data.employeeNames.forEach(name => employeeNameSelect.innerHTML += `<option value="${name}">${name}</option>`);
+            data.empCodes.forEach(code => empCodeSelect.innerHTML += `<option value="${code}">${code}</option>`);
+            data.states.forEach(state => stateSelect.innerHTML += `<option value="${state}">${state}</option>`);
+            data.months.forEach(month => monthSelect.innerHTML += `<option value="${month}">${month}</option>`);
+            data.expenseTypes.forEach(type => expenseTypeSelect.innerHTML += `<option value="${type}">${type}</option>`);
+        }
+
+        fetchDropdownData();
+
+        // Handle form submission
+        document.getElementById("expenseForm").addEventListener("submit", async function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const formData = new FormData(event.target); // Get form data
+    const formObject = Object.fromEntries(formData.entries()); // Convert form data to an object
+
+    console.log("Form data being sent:", formObject); // Log the data being sent
+
+    try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbyPdEiCSP8uv_lREbXelIhbKBJeJmY2vSptwa-Zq7T6NjtxPyP2NqyA1aNyX1v3hpBCjQ/exec", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formObject), // Send data as JSON
+            mode: "cors"  // Ensure CORS mode is used
+        });
+
+        console.log("Response status:", response.status); // Log the response status
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();  // Expecting JSON response
+        console.log("Response from server:", result); // Log the server response
+        alert("Form submitted successfully!"); // Notify the user of success
+    } catch (error) {
+        console.error("Error submitting form:", error);
+        alert("Failed to submit the form. Please check the console for details.");
+    }
+});
+
+
+
+    </script>
+</body>
+</html>
